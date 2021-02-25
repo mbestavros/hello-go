@@ -35,3 +35,15 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
+      -
+        name: Echo signatures
+        run: cat ./dist/checksums.txt.sig
+      -
+        name: Setup rekor
+        run: |
+          git clone https://github.com/SigStore/rekor.git
+          cd ./rekor/cmd/cli
+          go build -o rekor
+      -
+        name: Run rekor
+        run: ./rekor/cmd/cli/rekor upload --rekor_server https://api.rekor.dev --signature ./dist/checksums.txt.sig --public-key ./pubkey.key --artifact ./dist/hello-go_linux_amd64/hello-go
